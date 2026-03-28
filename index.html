@@ -6,67 +6,754 @@
 <meta name="theme-color" content="#0a1628">
 <title>Grindly</title>
 <style>
-/* ... ton CSS complet inchangé ... */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { background:#0a1628; color:#fff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; max-width:480px; margin:0 auto; overflow-x:hidden; }
+.navbar { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; background:#0d1f3c; border-top:1px solid #1e3a5f; display:flex; justify-content:space-around; padding:8px 0 18px; z-index:100; }
+.nav-btn { display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; color:#4a6a9a; cursor:pointer; font-size:9px; padding:4px 8px; transition:color 0.2s; position:relative; }
+.nav-btn.active { color:#4A90D9; }
+.nav-icon { font-size:20px; }
+.nav-badge { position:absolute; top:0; right:6px; width:8px; height:8px; background:#ef4444; border-radius:50%; }
+.screen { display:none; padding:0 0 100px; }
+.screen.active { display:block; }
+.screen-padded { padding:16px 14px 100px; }
+.logo-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; padding:16px 14px 0; }
+.logo-circle { width:36px; height:36px; background:#4A90D9; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:#fff; flex-shrink:0; }
+.card { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:14px; padding:14px; margin-bottom:10px; }
+.stats-row { display:flex; gap:8px; margin-bottom:12px; }
+.stat-box { flex:1; background:#112240; border-radius:10px; padding:10px; text-align:center; }
+.stat-val { font-size:18px; font-weight:700; color:#4A90D9; }
+.stat-label { font-size:9px; color:#4a6a9a; margin-top:2px; }
+.xp-label { display:flex; justify-content:space-between; font-size:11px; color:#4a6a9a; margin-bottom:5px; }
+.xp-bar-bg { background:#112240; border-radius:6px; height:7px; }
+.xp-bar-fill { background:#4A90D9; border-radius:6px; height:7px; transition:width 0.5s; }
+.section-title { font-size:11px; color:#4a6a9a; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+.quest-card { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:12px; padding:12px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.quest-card.done { opacity:0.4; }
+.quest-icon { font-size:26px; flex-shrink:0; }
+.quest-info { flex:1; }
+.quest-name { font-size:13px; font-weight:600; margin-bottom:2px; }
+.quest-xp { font-size:11px; color:#4A90D9; font-weight:600; }
+.diff-dots { display:flex; gap:3px; margin-top:3px; }
+.dot { width:5px; height:5px; border-radius:50%; background:#1e3a5f; }
+.dot.on { background:#4A90D9; }
+.btn { border:none; border-radius:8px; font-size:12px; font-weight:600; padding:8px 12px; cursor:pointer; transition:opacity 0.2s; white-space:nowrap; }
+.btn:hover { opacity:0.85; }
+.btn-blue { background:#4A90D9; color:#fff; }
+.btn-orange { background:#ff6b35; color:#fff; }
+.btn-gray { background:#112240; border:1px solid #1e3a5f; color:#4a6a9a; }
+.btn-green { background:#22c55e; color:#fff; }
+.btn-gold { background:#fbbf24; color:#000; }
+.btn-full { width:100%; padding:13px; font-size:14px; }
+.done-badge { background:#4A90D922; border:1px solid #4A90D9; border-radius:8px; color:#4A90D9; font-size:11px; font-weight:600; padding:6px 10px; }
+.boss-banner { background:#1a0f0a; border:1px solid #ff6b35; border-radius:14px; padding:16px; margin-bottom:12px; }
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:200; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:24px 24px 0 0; padding:22px 18px 36px; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; transform:translateY(100%); transition:transform 0.3s; }
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-title { font-size:17px; font-weight:700; margin-bottom:4px; }
+.modal-sub { font-size:12px; color:#4a6a9a; margin-bottom:18px; }
+.modal-close { float:right; background:none; border:none; color:#4a6a9a; font-size:22px; cursor:pointer; }
+.timer-circle { width:130px; height:130px; border-radius:50%; border:4px solid #1e3a5f; margin:14px auto; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+.timer-time { font-size:30px; font-weight:700; color:#4A90D9; }
+.timer-label { font-size:10px; color:#4a6a9a; }
+.photo-area { border:2px dashed #1e3a5f; border-radius:12px; padding:22px; text-align:center; margin:12px 0; cursor:pointer; }
+.photo-area:hover { border-color:#4A90D9; }
+.input-field { width:100%; background:#112240; border:1px solid #1e3a5f; border-radius:10px; padding:11px 14px; color:#fff; font-size:14px; margin-bottom:10px; }
+.input-field:focus { outline:none; border-color:#4A90D9; }
+textarea.input-field { resize:vertical; min-height:70px; }
+.quiz-question { font-size:13px; font-weight:600; margin-bottom:10px; line-height:1.5; }
+.quiz-option { width:100%; background:#112240; border:1px solid #1e3a5f; border-radius:10px; padding:11px 14px; cursor:pointer; font-size:12px; color:#fff; margin-bottom:7px; text-align:left; display:block; }
+.quiz-option.correct { border-color:#22c55e; background:#22c55e22; }
+.quiz-option.wrong { border-color:#ef4444; background:#ef444422; }
+.badges-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.badge-item { background:#112240; border:1px solid #1e3a5f; border-radius:12px; padding:12px 8px; text-align:center; }
+.badge-item.unlocked { border-color:#4A90D9; background:#4A90D922; }
+.badge-emoji { font-size:26px; margin-bottom:4px; }
+.badge-name { font-size:10px; font-weight:600; }
+.badge-desc { font-size:9px; color:#4a6a9a; margin-top:2px; }
+.badge-item.locked .badge-emoji { filter:grayscale(1); opacity:0.4; }
+.badge-item.locked .badge-name { color:#4a6a9a; }
+.shop-item { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:12px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; }
+.shop-item.owned { border-color:#22c55e; }
+.shop-item.locked-item { opacity:0.5; }
+.rank-card { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:12px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; }
+.rank-you { border-color:#4A90D9; }
+.stat-row-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #1e3a5f; }
+.stat-row-item:last-child { border-bottom:none; }
+.stat-row-label { font-size:13px; color:#888; }
+.stat-row-val { font-size:13px; font-weight:600; }
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#4A90D9; color:#fff; padding:11px 22px; border-radius:30px; font-size:13px; font-weight:600; z-index:999; opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; max-width:90%; text-align:center; }
+.toast.show { opacity:1; }
+.toast.error { background:#ef4444; }
+.toast.success { background:#22c55e; }
+.toast.legendary { background:#ff6b35; }
+.toast.gold { background:#fbbf24; color:#000; }
+.setup-screen { position:fixed; inset:0; background:#0a1628; z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px; text-align:center; }
+.streak-banner { background:#0d1f3c; border:1px solid #1e3a5f; border-radius:12px; padding:11px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+.profile-banner { width:100%; height:130px; position:relative; cursor:pointer; flex-shrink:0; }
+.profile-banner-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s; }
+.profile-banner:hover .profile-banner-overlay { opacity:1; }
+.banner-edit-btn { background:rgba(0,0,0,0.6); border:1px solid #fff; border-radius:8px; color:#fff; font-size:12px; padding:6px 12px; cursor:pointer; }
+.profile-avatar-wrap { position:relative; margin-top:-44px; margin-left:16px; margin-bottom:10px; display:inline-block; }
+.profile-avatar-img { width:80px; height:80px; border-radius:50%; border:3px solid #0a1628; object-fit:cover; background:#112240; display:flex; align-items:center; justify-content:center; font-size:36px; overflow:hidden; }
+.avatar-edit-btn { position:absolute; bottom:0; right:0; width:24px; height:24px; background:#4A90D9; border-radius:50%; border:2px solid #0a1628; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; }
+.profile-info-section { padding:0 16px 14px; }
+.profile-name-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap; }
+.profile-display-name { font-size:18px; font-weight:700; }
+.profile-rang-badge { font-size:11px; color:#4A90D9; background:#4A90D922; border:1px solid #4A90D9; border-radius:6px; padding:2px 8px; }
+.profile-role-badge { font-size:11px; border-radius:6px; padding:2px 8px; font-weight:600; }
+.profile-title-text { font-size:12px; color:#fbbf24; margin-bottom:4px; }
+.profile-bio { font-size:13px; color:#888; margin-bottom:12px; line-height:1.5; }
+.edit-profile-btn { font-size:12px; background:#112240; border:1px solid #1e3a5f; border-radius:8px; color:#4a6a9a; padding:7px 14px; cursor:pointer; }
+.banner-color-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+.banner-color-opt { height:44px; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:border-color 0.2s; }
+.banner-color-opt.selected { border-color:#fff; }
+.deco-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.deco-opt { background:#112240; border:2px solid #1e3a5f; border-radius:12px; padding:12px 8px; text-align:center; cursor:pointer; transition:border-color 0.2s; }
+.deco-opt:hover { border-color:#4A90D9; }
+.deco-opt.selected { border-color:#fbbf24; }
+.deco-opt.locked-deco { opacity:0.4; cursor:not-allowed; }
+.deco-icon { font-size:22px; margin-bottom:4px; }
+.deco-name { font-size:10px; color:#fff; }
+.deco-req { font-size:9px; color:#4a6a9a; margin-top:2px; }
+.daily-timer { background:#112240; border-radius:8px; padding:6px 10px; font-size:11px; color:#ff6b35; font-weight:600; margin-top:4px; display:inline-block; }
+.search-bar { display:flex; align-items:center; gap:8px; background:#112240; border:1px solid #1e3a5f; border-radius:10px; padding:10px 14px; margin-bottom:14px; }
+.search-bar input { flex:1; background:none; border:none; color:#fff; font-size:14px; outline:none; }
+.search-bar input::placeholder { color:#4a6a9a; }
+.role-tag { display:inline-block; font-size:10px; border-radius:6px; padding:2px 8px; font-weight:700; margin-left:4px; }
 </style>
 </head>
 <body>
-<!-- ... tout ton HTML inchangé jusqu'au script ... -->
+
+<div class="setup-screen" id="setup-screen">
+  <div style="font-size:44px;font-weight:900;color:#4A90D9;letter-spacing:2px;margin-bottom:6px;">GRINDLY</div>
+  <div style="font-size:13px;color:#4a6a9a;margin-bottom:36px;">Level up your life 🔥</div>
+  <div style="font-size:19px;font-weight:700;margin-bottom:6px;">Choisis ton pseudo</div>
+  <div style="font-size:12px;color:#4a6a9a;margin-bottom:6px;">⚠️ Attention : ce pseudo est définitif !</div>
+  <div style="font-size:12px;color:#4a6a9a;margin-bottom:20px;">Il apparaîtra dans le classement mondial 🌍</div>
+  <input class="input-field" id="pseudo-input" placeholder="Ton pseudo..." maxlength="20" style="max-width:280px;text-align:center;font-size:15px;">
+  <button class="btn btn-blue btn-full" style="max-width:280px;margin-top:10px;" onclick="savePseudo()">Commencer ⚡</button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modal"><div class="modal" id="modal-content"></div></div>
+
+<!-- QUÊTES -->
+<div class="screen active" id="screen-quests">
+  <div class="logo-header">
+    <div class="logo-circle">G</div>
+    <div style="flex:1;"><div style="font-size:17px;font-weight:700;color:#4A90D9;letter-spacing:1px;">GRINDLY</div><div style="font-size:10px;color:#4a6a9a;" id="quests-date"></div></div>
+    <button onclick="openSearch()" style="background:none;border:none;color:#4a6a9a;font-size:22px;cursor:pointer;">🔍</button>
+  </div>
+  <div style="padding:0 14px;">
+    <div class="streak-banner">
+      <div style="font-size:26px;">🔥</div>
+      <div style="flex:1;">
+        <div style="font-size:18px;font-weight:700;color:#ff6b35;" id="streak-count">0</div>
+        <div style="font-size:10px;color:#4a6a9a;">défis complétés</div>
+        <div style="font-size:10px;color:#4A90D9;margin-top:2px;" id="streak-progress"></div>
+      </div>
+      <div style="text-align:right;"><div style="font-size:16px;font-weight:700;color:#fbbf24;" id="streak-fires">🔥×0</div><div style="font-size:9px;color:#4a6a9a;">streaks</div></div>
+    </div>
+    <div class="boss-banner">
+      <div style="font-size:11px;color:#ff6b35;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">👹 Boss de la semaine</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px;" id="boss-name"></div>
+      <div style="font-size:12px;color:#888;margin-bottom:8px;" id="boss-desc"></div>
+      <div style="font-size:11px;color:#ff6b35;margin-bottom:8px;" id="boss-timer"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:13px;font-weight:600;color:#fbbf24;" id="boss-reward"></div>
+        <button class="btn btn-orange" id="boss-btn" onclick="attemptBoss()">Relever le défi</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div class="section-title" style="margin-bottom:0;">Quêtes du jour</div>
+      <div class="daily-timer" id="daily-timer">⏳ Reset dans --:--:--</div>
+    </div>
+    <div id="quest-list"></div>
+  </div>
+</div>
+
+<!-- PROFIL -->
+<div class="screen" id="screen-profil">
+  <div style="position:relative;">
+    <div class="profile-banner" id="profile-banner" onclick="openBannerEdit()">
+      <div class="profile-banner-overlay"><button class="banner-edit-btn">✏️ Bannière</button></div>
+    </div>
+    <button onclick="openSearch()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.5);border:1px solid #fff4;border-radius:8px;color:#fff;font-size:18px;padding:6px 10px;cursor:pointer;">🔍</button>
+  </div>
+  <div style="padding:0 16px;">
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar-img" id="profile-avatar-display">⚡</div>
+      <div class="avatar-edit-btn" onclick="document.getElementById('avatar-upload').click()">✏️</div>
+      <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="uploadAvatar(event)">
+    </div>
+    <div style="float:right;margin-top:8px;"><button class="edit-profile-btn" onclick="openEditProfile()">✏️ Modifier bio</button></div>
+    <div style="clear:both;"></div>
+  </div>
+  <div class="profile-info-section">
+    <div class="profile-name-row">
+      <div class="profile-display-name" id="profil-pseudo">—</div>
+      <div class="profile-rang-badge" id="profil-rang">Débutant</div>
+      <div class="profile-role-badge" id="profil-role-badge" style="display:none;"></div>
+    </div>
+    <div class="profile-title-text" id="profil-title"></div>
+    <div class="profile-bio" id="profil-bio">Aucune bio...</div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" id="profil-xp">0</div><div class="stat-label">XP Total</div></div>
+      <div class="stat-box"><div class="stat-val" id="profil-level">1</div><div class="stat-label">Niveau</div></div>
+      <div class="stat-box"><div class="stat-val" id="profil-streaks">0</div><div class="stat-label">Streaks 🔥</div></div>
+    </div>
+    <div class="xp-label"><span>Progression niveau</span><span id="xp-bar-val">0 / 100 XP</span></div>
+    <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+  </div>
+  <div style="padding:0 14px;">
+    <div class="section-title">Mes badges</div>
+    <div class="badges-grid" id="badges-grid"></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="screen screen-padded" id="screen-stats">
+  <div class="logo-header" style="padding:0;"><div class="logo-circle">G</div><div><div style="font-size:17px;font-weight:700;color:#4A90D9;">GRINDLY</div><div style="font-size:10px;color:#4a6a9a;">Stats 📊</div></div></div>
+  <div class="card" style="text-align:center;padding:20px;">
+    <div style="font-size:44px;font-weight:700;color:#4A90D9;" id="stats-xp">0</div>
+    <div style="font-size:13px;color:#4a6a9a;">XP total gagné</div>
+  </div>
+  <div class="card">
+    <div class="stat-row-item"><span class="stat-row-label">Défis complétés</span><span class="stat-row-val" id="stats-defis">0</span></div>
+    <div class="stat-row-item"><span class="stat-row-label">Niveau actuel</span><span class="stat-row-val" id="stats-level">1</span></div>
+    <div class="stat-row-item"><span class="stat-row-label">Rôle actuel</span><span class="stat-row-val" id="stats-role">—</span></div>
+    <div class="stat-row-item"><span class="stat-row-label">Streaks obtenus</span><span class="stat-row-val" id="stats-streaks">0 🔥</span></div>
+    <div class="stat-row-item"><span class="stat-row-label">Boss vaincus</span><span class="stat-row-val" id="stats-boss">0 👹</span></div>
+    <div class="stat-row-item"><span class="stat-row-label">Badges débloqués</span><span class="stat-row-val" id="stats-badges">0 🏅</span></div>
+    <div class="stat-row-item"><span class="stat-row-label">XP dépensé boutique</span><span class="stat-row-val" id="stats-spent">0</span></div>
+  </div>
+</div>
+
+<!-- BOUTIQUE -->
+<div class="screen screen-padded" id="screen-boutique">
+  <div class="logo-header" style="padding:0;"><div class="logo-circle">G</div><div><div style="font-size:17px;font-weight:700;color:#4A90D9;">GRINDLY</div><div style="font-size:10px;color:#4a6a9a;">Boutique 🛒</div></div></div>
+  <div class="card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="font-size:13px;color:#4a6a9a;">Ton solde</div>
+    <div style="font-size:20px;font-weight:700;color:#4A90D9;" id="shop-balance">0 XP</div>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;">
+    <button class="btn btn-blue" onclick="filterShop('all')" id="filter-all">Tout</button>
+    <button class="btn btn-gray" onclick="filterShop('deco')" id="filter-deco">Déco 🎨</button>
+    <button class="btn btn-gray" onclick="filterShop('boost')" id="filter-boost">Boosts ⚡</button>
+    <button class="btn btn-gray" onclick="filterShop('avatar')" id="filter-avatar">Avatars</button>
+  </div>
+  <div id="shop-list"></div>
+</div>
+
+<!-- CLASSEMENT -->
+<div class="screen screen-padded" id="screen-classement">
+  <div class="logo-header" style="padding:0;"><div class="logo-circle">G</div><div><div style="font-size:17px;font-weight:700;color:#4A90D9;">GRINDLY</div><div style="font-size:10px;color:#4a6a9a;">Classement 🌍</div></div></div>
+  <div style="display:flex;gap:8px;margin-bottom:12px;">
+    <button class="btn btn-blue" style="flex:1;" onclick="showLeaderboard('xp')">Par XP</button>
+    <button class="btn btn-gray" style="flex:1;" onclick="showLeaderboard('level')">Par Niveau</button>
+  </div>
+  <div id="classement-list"></div>
+</div>
+
+<nav class="navbar">
+  <button class="nav-btn active" id="nav-quests" onclick="showScreen('quests')"><span class="nav-icon">⚔️</span><span>Quêtes</span><span class="nav-badge" id="quest-badge" style="display:none;"></span></button>
+  <button class="nav-btn" id="nav-profil" onclick="showScreen('profil')"><span class="nav-icon">👤</span><span>Profil</span></button>
+  <button class="nav-btn" id="nav-stats" onclick="showScreen('stats')"><span class="nav-icon">📊</span><span>Stats</span></button>
+  <button class="nav-btn" id="nav-boutique" onclick="showScreen('boutique')"><span class="nav-icon">🛒</span><span>Boutique</span></button>
+  <button class="nav-btn" id="nav-classement" onclick="showScreen('classement')"><span class="nav-icon">🏆</span><span>Classe.</span></button>
+</nav>
 
 <script>
 const SUPABASE_URL="https://zyhmtepzjhnohnetujht.supabase.co";
 const SUPABASE_KEY="sb_publishable_q0rpFX-bjrzPafzU7ltpWw_G1cZF_U2";
 
-// ... toutes tes constantes (ALL_QUESTS, BOSSES, etc.) inchangées ...
+const ALL_QUESTS=[
+  {id:1,name:"Lire 30 min",xp:50,diff:1,icon:"📖",type:"lecture"},
+  {id:2,name:"Marche 15 min",xp:30,diff:1,icon:"🚶",type:"timer",timer:900},
+  {id:3,name:"Sport 20 min",xp:80,diff:2,icon:"🏃",type:"timer",timer:1200},
+  {id:4,name:"Méditer 10 min",xp:40,diff:1,icon:"🧘",type:"timer",timer:600},
+  {id:5,name:"Projet perso 1h",xp:120,diff:3,icon:"💼",type:"photo"},
+  {id:6,name:"Apprendre quelque chose",xp:60,diff:2,icon:"🧠",type:"photo"},
+  {id:7,name:"Boire 2L d'eau",xp:20,diff:1,icon:"💧",type:"simple"},
+  {id:8,name:"Pas de réseaux 2h",xp:100,diff:3,icon:"📵",type:"timer",timer:7200},
+  {id:9,name:"Cuisiner sain",xp:45,diff:1,icon:"🥗",type:"photo"},
+  {id:10,name:"Écrire dans un journal",xp:35,diff:1,icon:"✍️",type:"simple"},
+  {id:11,name:"Appeler un proche",xp:25,diff:1,icon:"📞",type:"simple"},
+  {id:12,name:"Étirer 10 min",xp:30,diff:1,icon:"🤸",type:"timer",timer:600},
+  {id:13,name:"Ranger ta chambre",xp:40,diff:1,icon:"🧹",type:"photo"},
+  {id:14,name:"Courir 20 min",xp:90,diff:2,icon:"🏅",type:"timer",timer:1200},
+  {id:15,name:"Faire 50 pompes",xp:70,diff:2,icon:"💪",type:"simple"},
+  {id:16,name:"Lire 1h",xp:80,diff:2,icon:"📚",type:"lecture"},
+  {id:17,name:"Coder 30 min",xp:90,diff:3,icon:"💻",type:"timer",timer:1800},
+  {id:18,name:"Dessiner",xp:40,diff:1,icon:"🎨",type:"photo"},
+  {id:19,name:"Pas de sucre",xp:60,diff:2,icon:"🚫",type:"simple"},
+  {id:20,name:"Apprendre 10 mots",xp:50,diff:2,icon:"🗣️",type:"simple"},
+];
 
-function loadState(){ /* inchangé */ }
-function saveState(){ /* inchangé */ }
+const BOSSES=[
+  {name:"Le Titan de l'Effort",desc:"Complète 5 défis difficiles cette semaine",xp:500,icon:"👹"},
+  {name:"Le Maître du Temps",desc:"Utilise le timer 3 fois cette semaine",xp:400,icon:"⏱️"},
+  {name:"L'Œil de l'IA",desc:"Valide 2 lectures via l'IA",xp:600,icon:"🤖"},
+  {name:"La Bête du Sport",desc:"Fais 4 défis sport cette semaine",xp:450,icon:"🏋️"},
+  {name:"Le Sage Numérique",desc:"Évite les réseaux 3 fois cette semaine",xp:550,icon:"🧘"},
+];
+
+// RÔLES tous les 5 niveaux
+const ROLES=[
+  {minLevel:1,name:"Recrue",color:"#888",bg:"#88888822",border:"#888"},
+  {minLevel:5,name:"Soldat",color:"#22c55e",bg:"#22c55e22",border:"#22c55e"},
+  {minLevel:10,name:"Guerrier",color:"#4A90D9",bg:"#4A90D922",border:"#4A90D9"},
+  {minLevel:15,name:"Champion",color:"#a855f7",bg:"#a855f722",border:"#a855f7"},
+  {minLevel:20,name:"Maître",color:"#ff6b35",bg:"#ff6b3522",border:"#ff6b35"},
+  {minLevel:25,name:"Légende",color:"#fbbf24",bg:"#fbbf2422",border:"#fbbf24"},
+  {minLevel:30,name:"Titan",color:"#ef4444",bg:"#ef444422",border:"#ef4444"},
+  {minLevel:40,name:"Divinité",color:"#fff",bg:"#ffffff22",border:"#fff"},
+];
+
+// TITRES par niveau
+const LEVEL_TITLES=[
+  {level:5,title:"Apprenti Grinder 🌱"},
+  {level:10,title:"Vrai Grinder ⚡"},
+  {level:15,title:"Elite Grinder 💎"},
+  {level:20,title:"Master Grinder 👑"},
+  {level:25,title:"Legend Grinder 🔥"},
+  {level:30,title:"God Grinder ⚔️"},
+];
+
+const BADGES=[
+  {id:"first",emoji:"🌱",name:"Premier pas",desc:"1er défi",check:s=>s.defisCount>=1},
+  {id:"streak1",emoji:"🔥",name:"En feu",desc:"1er streak",check:s=>s.streaks>=1},
+  {id:"streak3",emoji:"🔥🔥",name:"Inferno",desc:"3 streaks",check:s=>s.streaks>=3},
+  {id:"level5",emoji:"⭐",name:"Étoile",desc:"Niveau 5",check:s=>s.level>=5},
+  {id:"level10",emoji:"💎",name:"Diamant",desc:"Niveau 10",check:s=>s.level>=10},
+  {id:"level20",emoji:"👑",name:"Légende",desc:"Niveau 20",check:s=>s.level>=20},
+  {id:"boss1",emoji:"⚔️",name:"Chasseur",desc:"1 boss vaincu",check:s=>s.bossKills>=1},
+  {id:"boss5",emoji:"🗡️",name:"Titan Slayer",desc:"5 boss vaincus",check:s=>s.bossKills>=5},
+  {id:"reader",emoji:"📖",name:"Lecteur",desc:"5 lectures IA",check:s=>(s.lectureCount||0)>=5},
+  {id:"shop1",emoji:"🛒",name:"Dépensier",desc:"1er achat",check:s=>(s.shopPurchases||0)>=1},
+  {id:"defi50",emoji:"🏆",name:"Centurion",desc:"50 défis",check:s=>s.defisCount>=50},
+  {id:"defi100",emoji:"🌟",name:"Légende vivante",desc:"100 défis",check:s=>s.defisCount>=100},
+];
+
+// BOUTIQUE
+const SHOP_ITEMS=[
+  // Boosts
+  {id:"xp_boost",name:"XP Boost x1.5",desc:"Prochains 5 défis : XP x1.5",price:200,type:"boost",icon:"⚡",cat:"boost"},
+  {id:"xp_boost2",name:"XP Boost x2",desc:"Prochains 3 défis : XP x2",price:350,type:"boost2",icon:"⚡⚡",cat:"boost"},
+  // Décorations avatar (bordures)
+  {id:"deco_gold",name:"Bordure Dorée",desc:"Bordure avatar dorée",price:300,type:"deco",icon:"🟡",cat:"deco",css:"3px solid #fbbf24"},
+  {id:"deco_fire",name:"Bordure Feu",desc:"Bordure avatar orange",price:200,type:"deco",icon:"🔴",cat:"deco",css:"3px solid #ff6b35"},
+  {id:"deco_purple",name:"Bordure Violette",desc:"Bordure avatar violette",price:250,type:"deco",icon:"🟣",cat:"deco",css:"3px solid #a855f7"},
+  {id:"deco_rainbow",name:"Bordure Arc-en-ciel",desc:"Bordure multicolore légendaire",price:600,type:"deco",icon:"🌈",cat:"deco",css:"3px solid #4A90D9",rainbow:true},
+  // Avatars emoji
+  {id:"av_fire",name:"Avatar Flamme",desc:"Change ton avatar",price:100,type:"avatar",icon:"🔥",cat:"avatar",value:"🔥"},
+  {id:"av_sword",name:"Avatar Épée",desc:"Change ton avatar",price:100,type:"avatar",icon:"⚔️",cat:"avatar",value:"⚔️"},
+  {id:"av_crown",name:"Avatar Couronne",desc:"Pour les rois",price:300,type:"avatar",icon:"👑",cat:"avatar",value:"👑"},
+  {id:"av_dragon",name:"Avatar Dragon",desc:"Légendaire",price:500,type:"avatar",icon:"🐉",cat:"avatar",value:"🐉"},
+];
+
+const BANNER_COLORS=[
+  "linear-gradient(135deg,#0a1628,#1e3a5f)",
+  "linear-gradient(135deg,#1a0a28,#4a1e8f)",
+  "linear-gradient(135deg,#1a0a0a,#8f1e1e)",
+  "linear-gradient(135deg,#0a1a0a,#1e6b1e)",
+  "linear-gradient(135deg,#1a120a,#8f5a1e)",
+  "linear-gradient(135deg,#0a1a1a,#1e6b6b)",
+  "linear-gradient(135deg,#1a0a1a,#8f1e6b)",
+  "linear-gradient(135deg,#111,#444)",
+];
+
+function loadState(){
+  const s=localStorage.getItem('grindly_v6');
+  return s?JSON.parse(s):{
+    xp:0,level:1,streaks:0,defisCount:0,questsDone:[],pseudo:"",pseudoLocked:false,
+    bossKills:0,lectureCount:0,shopPurchases:0,xpSpent:0,
+    ownedItems:[],activeTitle:"",activeDeco:"",activeAvatar:"⚡",boostRemaining:0,boost2Remaining:0,
+    todayDate:"",questResetTime:0,bossDefeated:false,
+    avatarData:"",bannerValue:BANNER_COLORS[0],bannerImageData:"",bio:""
+  };
+}
+function saveState(){localStorage.setItem('grindly_v6',JSON.stringify(state));}
+
 let state=loadState();
-// ... tes variables globales inchangées ...
+let timerInterval=null,timerSeconds=0,timerRunning=false,currentQuestId=null;
+let quizAnswers=[],quizCorrect=0,leaderboardMode='xp',shopFilter='all';
+let dailyTimerInterval=null;
 
-// Reset quêtes (inchangé)
-
-// === MODIFICATIONS ICI ===
-
-// Vérification pseudo unique + feedback
-async function savePseudo(){
-  const p = document.getElementById('pseudo-input').value.trim();
-  if(!p){ showToast('Entre un pseudo !','error'); return; }
-  if(p.length < 3){ showToast('Pseudo trop court (min 3)','error'); return; }
-
-  try {
-    const existing = await sbFetch(`/rest/v1/leaderboard?pseudo=eq.${encodeURIComponent(p)}&select=pseudo`);
-    if(Array.isArray(existing) && existing.length > 0){
-      showToast('Ce pseudo est déjà pris !','error');
-      return;
-    }
-  } catch(e){
-    showToast('Erreur de vérification','error');
-    return;
-  }
-
-  state.pseudo = p;
-  state.pseudoLocked = true;
+// Reset quêtes toutes les 24h
+const now=Date.now();
+if(!state.questResetTime||now>state.questResetTime){
+  state.questsDone=[];
+  state.questResetTime=now+(24*60*60*1000);
+  state.bossDefeated=false;
   saveState();
-  document.getElementById('setup-screen').style.display = 'none';
-  upsertScore();
-  renderAll();
-  startDailyTimer();
-  showToast('Bienvenue sur Grindly !','success');
 }
 
-// Recherche joueur (inchangée)
+if(state.pseudo)document.getElementById('setup-screen').style.display='none';
 
-// Rang optimisé (limite à 1000 résultats max)
+function getTodayQuests(){
+  const seed=Math.floor(state.questResetTime/(24*60*60*1000));
+  return Array.from({length:6},(_,i)=>ALL_QUESTS[(seed+i)%ALL_QUESTS.length]);
+}
+function getWeekBoss(){return BOSSES[Math.floor(Date.now()/(3*24*60*60*1000))%BOSSES.length];}
+function getBossTimeLeft(){
+  const now=new Date(),next=new Date(now);
+  next.setDate(now.getDate()+(3-now.getDay()%3));next.setHours(0,0,0,0);
+  const diff=next-now,d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000);
+  return`${d}j ${h}h`;
+}
+
+function getRole(level){
+  let role=ROLES[0];
+  for(const r of ROLES){if(level>=r.minLevel)role=r;}
+  return role;
+}
+
+function getLevelTitle(level){
+  let title="";
+  for(const t of LEVEL_TITLES){if(level>=t.level)title=t.title;}
+  return title;
+}
+
+function savePseudo(){
+  const p=document.getElementById('pseudo-input').value.trim();
+  if(!p){showToast('Entre un pseudo !','error');return;}
+  if(p.length<3){showToast('Pseudo trop court (3 min)','error');return;}
+  state.pseudo=p;state.pseudoLocked=true;saveState();
+  document.getElementById('setup-screen').style.display='none';
+  upsertScore();renderAll();startDailyTimer();
+}
+
+function getRang(l){
+  if(l>=20)return"Légende 👑";if(l>=15)return"Maître ⚔️";if(l>=10)return"Expert 💎";
+  if(l>=5)return"Disciple 🌟";if(l>=2)return"Apprenti ⚡";return"Débutant 🌱";
+}
+function getDots(diff){return`<div class="diff-dots">${[1,2,3].map(i=>`<div class="dot${i<=diff?' on':''}"></div>`).join('')}</div>`;}
+
+// DAILY TIMER
+function startDailyTimer(){
+  if(dailyTimerInterval)clearInterval(dailyTimerInterval);
+  dailyTimerInterval=setInterval(()=>{
+    const remaining=state.questResetTime-Date.now();
+    if(remaining<=0){
+      state.questsDone=[];state.questResetTime=Date.now()+(24*60*60*1000);saveState();renderQuests();return;
+    }
+    const h=Math.floor(remaining/3600000),m=Math.floor((remaining%3600000)/60000),s=Math.floor((remaining%60000)/1000);
+    const el=document.getElementById('daily-timer');
+    if(el)el.textContent=`⏳ Reset dans ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    // Badge si quêtes pas faites
+    const done=state.questsDone.length;
+    const badge=document.getElementById('quest-badge');
+    if(badge)badge.style.display=done===0?'block':'none';
+  },1000);
+}
+
+// BANNER & AVATAR
+function applyBanner(){
+  const b=document.getElementById('profile-banner');if(!b)return;
+  if(state.bannerImageData){b.style.background='none';b.style.backgroundImage=`url(${state.bannerImageData})`;b.style.backgroundSize='cover';b.style.backgroundPosition='center';}
+  else{b.style.background=state.bannerValue;b.style.backgroundImage='none';}
+}
+function applyAvatar(){
+  const el=document.getElementById('profile-avatar-display');if(!el)return;
+  // Décoration
+  const deco=SHOP_ITEMS.find(i=>i.id===state.activeDeco);
+  if(deco&&deco.rainbow){el.style.border='3px solid transparent';el.style.backgroundClip='padding-box';el.style.boxShadow='0 0 0 3px #4A90D9';}
+  else if(deco){el.style.border=deco.css;}
+  else{el.style.border='3px solid #0a1628';}
+  if(state.avatarData){el.style.backgroundImage=`url(${state.avatarData})`;el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.textContent='';}
+  else{el.style.backgroundImage='';el.textContent=state.activeAvatar||'⚡';}
+}
+
+function openBannerEdit(){
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">🖼️ Modifier la bannière</div>
+    <div class="modal-sub">Couleur ou image personnalisée</div>
+    <div class="section-title">Couleurs</div>
+    <div class="banner-color-grid">
+      ${BANNER_COLORS.map((c,i)=>`<div class="banner-color-opt${state.bannerValue===c&&!state.bannerImageData?' selected':''}" style="background:${c};" onclick="setBannerColor('${c}')"></div>`).join('')}
+    </div>
+    <div class="photo-area" onclick="document.getElementById('banner-upload').click()">
+      <div style="font-size:28px;margin-bottom:6px;">🖼️</div>
+      <div style="font-size:12px;color:#4a6a9a;">Upload une image</div>
+    </div>
+    <input type="file" id="banner-upload" accept="image/*" style="display:none;" onchange="uploadBanner(event)">
+    ${state.bannerImageData?`<button class="btn btn-gray btn-full" style="margin-top:8px;" onclick="removeBannerImage()">🗑️ Supprimer l'image</button>`:''}
+  `);
+}
+function setBannerColor(c){state.bannerValue=c;state.bannerImageData='';saveState();applyBanner();closeModal();showToast('Bannière mise à jour !','success');}
+function uploadBanner(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{state.bannerImageData=ev.target.result;saveState();applyBanner();closeModal();showToast('Bannière mise à jour !','success');};
+  reader.readAsDataURL(file);
+}
+function removeBannerImage(){state.bannerImageData='';saveState();applyBanner();closeModal();}
+function uploadAvatar(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{state.avatarData=ev.target.result;saveState();applyAvatar();showToast('Photo de profil mise à jour !','success');};
+  reader.readAsDataURL(file);
+}
+
+function openEditProfile(){
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">✏️ Modifier le profil</div>
+    <div class="modal-sub">Pseudo verrouillé — seule la bio est modifiable</div>
+    <div style="background:#112240;border-radius:10px;padding:12px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+      <div style="font-size:20px;">🔒</div>
+      <div><div style="font-size:14px;font-weight:600;">${state.pseudo}</div><div style="font-size:11px;color:#4a6a9a;">Pseudo définitif</div></div>
+    </div>
+    <label style="font-size:11px;color:#4a6a9a;display:block;margin-bottom:5px;">Bio (max 100 caractères)</label>
+    <textarea class="input-field" id="edit-bio" maxlength="100" placeholder="Parle de toi...">${state.bio||''}</textarea>
+    <button class="btn btn-blue btn-full" onclick="saveBio()">✓ Sauvegarder</button>
+  `);
+}
+function saveBio(){
+  state.bio=document.getElementById('edit-bio').value.trim();
+  saveState();updateProfil();closeModal();showToast('Bio mise à jour !','success');
+}
+
+// SEARCH
+function openSearch(){
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">🔍 Rechercher un joueur</div>
+    <div class="modal-sub">Tape le pseudo exact du joueur</div>
+    <div class="search-bar">
+      <input id="search-input" placeholder="Pseudo du joueur..." maxlength="20" onkeydown="if(event.key==='Enter')searchPlayer()">
+      <button class="btn btn-blue" onclick="searchPlayer()">Chercher</button>
+    </div>
+    <div id="search-result"></div>
+  `);
+  setTimeout(()=>{const el=document.getElementById('search-input');if(el)el.focus();},300);
+}
+
+async function searchPlayer(){
+  const pseudo=document.getElementById('search-input').value.trim();
+  if(!pseudo){showToast('Entre un pseudo !','error');return;}
+  document.getElementById('search-result').innerHTML=`<div style="text-align:center;color:#4a6a9a;padding:20px;">Recherche... ⏳</div>`;
+  try{
+    const data=await sbFetch(`/rest/v1/leaderboard?pseudo=eq.${encodeURIComponent(pseudo)}&select=*`);
+    if(!Array.isArray(data)||!data.length){
+      document.getElementById('search-result').innerHTML=`<div style="text-align:center;color:#ef4444;padding:20px;">Joueur introuvable 😕</div>`;return;
+    }
+    const p=data[0];
+    const role=getRole(p.level);
+    const isYou=p.pseudo===state.pseudo;
+    document.getElementById('search-result').innerHTML=`
+      <div class="card" style="margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:52px;height:52px;border-radius:50%;background:#112240;border:2px solid ${role.border};display:flex;align-items:center;justify-content:center;font-size:24px;">👤</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;">${p.pseudo}${isYou?'<span style="font-size:10px;color:#4A90D9;margin-left:6px;">(Toi)</span>':''}</div>
+            <div style="font-size:11px;background:${role.bg};color:${role.color};border:1px solid ${role.border};border-radius:6px;padding:2px 8px;display:inline-block;margin-top:3px;">${role.name}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <div class="stat-box"><div class="stat-val">${p.xp}</div><div class="stat-label">XP</div></div>
+          <div class="stat-box"><div class="stat-val">${p.level}</div><div class="stat-label">Niveau</div></div>
+        </div>
+        <div style="font-size:12px;color:#4a6a9a;text-align:center;">📊 Rang : #${await getPlayerRank(p.pseudo)}</div>
+      </div>`;
+  }catch(e){document.getElementById('search-result').innerHTML=`<div style="text-align:center;color:#ef4444;padding:20px;">Erreur de connexion 😕</div>`;}
+}
+
 async function getPlayerRank(pseudo){
   try{
-    const all = await sbFetch(`/rest/v1/leaderboard?select=pseudo&order=xp.desc&limit=1000`);
-    if(!Array.isArray(all)) return '?';
-    const idx = all.findIndex(p => p.pseudo === pseudo);
-    return idx >= 0 ? idx + 1 : '?';
-  }catch{return '?';}
+    const all=await sbFetch('/rest/v1/leaderboard?select=pseudo&order=xp.desc');
+    if(!Array.isArray(all))return'?';
+    const idx=all.findIndex(p=>p.pseudo===pseudo);
+    return idx>=0?idx+1:'?';
+  }catch{return'?';}
 }
 
-// Lecture modal amélioré (vérification photo + titre)
+// QUESTS
+function renderQuests(){
+  const quests=getTodayQuests();
+  const boss=getWeekBoss();
+  document.getElementById('boss-name').textContent=boss.icon+' '+boss.name;
+  document.getElementById('boss-desc').textContent=boss.desc;
+  document.getElementById('boss-reward').textContent=`🏆 +${boss.xp} XP`;
+  document.getElementById('boss-timer').textContent=`⏳ Expire dans : ${getBossTimeLeft()}`;
+  const bossBtn=document.getElementById('boss-btn');
+  if(state.bossDefeated){bossBtn.textContent='✓ Vaincu !';bossBtn.disabled=true;bossBtn.style.opacity='0.5';}
+  else{bossBtn.textContent='Relever le défi';bossBtn.disabled=false;bossBtn.style.opacity='1';}
+  document.getElementById('quest-list').innerHTML=quests.map(q=>{
+    const done=state.questsDone.includes(q.id);
+    let mult=1;if(state.boostRemaining>0)mult=1.5;if(state.boost2Remaining>0)mult=2;
+    return`<div class="quest-card${done?' done':''}">
+      <div class="quest-icon">${q.icon}</div>
+      <div class="quest-info">
+        <div class="quest-name">${q.name}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+          <span class="quest-xp">+${Math.round(q.xp*mult)} XP${mult>1?' ⚡':''}</span>${getDots(q.diff)}
+        </div>
+      </div>
+      <div>${done?`<div class="done-badge">✓</div>`:`<button class="btn btn-blue" onclick="startQuest(${q.id})">Valider</button>`}</div>
+    </div>`;
+  }).join('');
+  const next=10-(state.defisCount%10);
+  document.getElementById('streak-count').textContent=state.defisCount;
+  document.getElementById('streak-fires').textContent=`🔥×${state.streaks}`;
+  document.getElementById('streak-progress').textContent=state.defisCount>0&&state.defisCount%10===0?`🔥 ${state.streaks} streak${state.streaks>1?'s':''}!`:`Encore ${next} pour un streak !`;
+  const days=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const n=new Date();
+  document.getElementById('quests-date').textContent=`${days[n.getDay()]} ${n.getDate()}/${n.getMonth()+1}`;
+}
+
+function attemptBoss(){
+  if(state.bossDefeated)return;
+  const boss=getWeekBoss();
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">${boss.icon} Boss de la semaine</div>
+    <div class="modal-sub">${boss.name}</div>
+    <div style="background:#1a0f0a;border:1px solid #ff6b35;border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:12px;color:#ff6b35;margin-bottom:4px;">Mission :</div>
+      <div style="font-size:13px;font-weight:600;">${boss.desc}</div>
+      <div style="font-size:12px;color:#fbbf24;margin-top:8px;">Récompense : +${boss.xp} XP 🏆</div>
+    </div>
+    <div class="photo-area" onclick="document.getElementById('boss-photo').click()">
+      <div style="font-size:28px;margin-bottom:6px;">📸</div>
+      <div style="font-size:12px;color:#4a6a9a;">Photo comme preuve</div>
+      <img id="boss-photo-preview" style="display:none;max-width:100%;border-radius:8px;margin-top:8px;">
+    </div>
+    <input type="file" id="boss-photo" accept="image/*" capture="environment" style="display:none;" onchange="previewBossPhoto(event)">
+    <button class="btn btn-orange btn-full" id="boss-validate" style="display:none;margin-top:10px;" onclick="defeatBoss(${boss.xp})">⚔️ Valider la victoire !</button>
+  `);
+}
+function previewBossPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=document.getElementById('boss-photo-preview');if(img){img.src=ev.target.result;img.style.display='block';}
+    const btn=document.getElementById('boss-validate');if(btn)btn.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+function defeatBoss(xp){
+  state.xp+=xp;state.level=Math.floor(state.xp/100)+1;
+  state.bossKills++;state.bossDefeated=true;
+  saveState();upsertScore();closeModal();checkBadges();checkRoleUp();renderAll();
+  setTimeout(()=>showToast(`👹 Boss vaincu ! +${xp} XP !`,'legendary'),300);
+}
+
+function startQuest(id){
+  const q=ALL_QUESTS.find(q=>q.id===id);currentQuestId=id;
+  if(q.type==='lecture')openLectureModal(q);
+  else if(q.type==='timer')openTimerModal(q);
+  else if(q.type==='photo')openPhotoModal(q);
+  else completeQuest(id);
+}
+
+function completeQuest(id,xpMultiplier=1){
+  if(state.questsDone.includes(id))return;
+  const q=ALL_QUESTS.find(q=>q.id===id);
+  let mult=xpMultiplier;
+  if(state.boost2Remaining>0){mult*=2;state.boost2Remaining--;}
+  else if(state.boostRemaining>0){mult*=1.5;state.boostRemaining--;}
+  const earned=Math.round(q.xp*mult);
+  const prevLevel=state.level;
+  state.xp+=earned;state.level=Math.floor(state.xp/100)+1;
+  state.questsDone.push(id);state.defisCount++;
+  if(q.type==='lecture')state.lectureCount=(state.lectureCount||0)+1;
+  if(state.defisCount%10===0){state.streaks++;setTimeout(()=>showToast(`🔥 STREAK x${state.streaks} !`,'legendary'),300);}
+  else showToast(`+${earned} XP — ${q.name} ✓`);
+  if(state.level>prevLevel){
+    const newTitle=getLevelTitle(state.level);
+    if(newTitle&&newTitle!==state.activeTitle){state.activeTitle=newTitle;setTimeout(()=>showToast(`🎉 Niveau ${state.level} ! Titre débloqué : ${newTitle}`,'gold'),600);}
+    else setTimeout(()=>showToast(`🎉 Niveau ${state.level} !`,'success'),600);
+    checkRoleUp(prevLevel);
+  }
+  saveState();upsertScore();checkBadges();closeModal();renderAll();
+}
+
+function checkRoleUp(prevLevel){
+  if(!prevLevel)prevLevel=state.level-1;
+  const oldRole=getRole(prevLevel);
+  const newRole=getRole(state.level);
+  if(newRole.name!==oldRole.name){
+    setTimeout(()=>showToast(`⚔️ Nouveau rôle : ${newRole.name} !`,'gold'),900);
+  }
+}
+
+function checkBadges(){
+  BADGES.forEach(b=>{
+    if(!state[`badge_${b.id}`]&&b.check(state)){
+      state[`badge_${b.id}`]=true;saveState();
+      setTimeout(()=>showToast(`🏅 Badge : ${b.name} !`,'success'),500);
+    }
+  });
+}
+
+// TIMER
+function openTimerModal(q){
+  timerSeconds=q.timer;timerRunning=false;clearInterval(timerInterval);
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">${q.icon} ${q.name}</div>
+    <div class="modal-sub">Lance le timer pour valider !</div>
+    <div style="text-align:center;">
+      <div class="timer-circle"><div class="timer-time" id="timer-display">${formatTime(q.timer)}</div><div class="timer-label">restant</div></div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;">
+        <button class="btn btn-blue" id="timer-start-btn" onclick="toggleTimer()">▶ Lancer</button>
+        <button class="btn btn-gray" onclick="resetTimer(${q.timer})">↺ Reset</button>
+      </div>
+    </div>
+    <div id="timer-validate" style="display:none;"><button class="btn btn-green btn-full" onclick="completeQuest(${q.id})">✓ Valider</button></div>
+  `);
+}
+function formatTime(s){return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+function toggleTimer(){
+  const btn=document.getElementById('timer-start-btn');
+  if(timerRunning){clearInterval(timerInterval);timerRunning=false;if(btn)btn.textContent='▶ Reprendre';}
+  else{timerRunning=true;if(btn)btn.textContent='⏸ Pause';
+    timerInterval=setInterval(()=>{
+      timerSeconds--;
+      const el=document.getElementById('timer-display');if(el)el.textContent=formatTime(timerSeconds);
+      if(timerSeconds<=0){clearInterval(timerInterval);timerRunning=false;
+        const v=document.getElementById('timer-validate');if(v)v.style.display='block';
+        if(btn)btn.style.display='none';showToast('⏱ Timer terminé !','success');}
+    },1000);
+  }
+}
+function resetTimer(d){
+  clearInterval(timerInterval);timerRunning=false;timerSeconds=d;
+  const el=document.getElementById('timer-display');if(el)el.textContent=formatTime(d);
+  const btn=document.getElementById('timer-start-btn');if(btn){btn.textContent='▶ Lancer';btn.style.display='inline-block';}
+  const v=document.getElementById('timer-validate');if(v)v.style.display='none';
+}
+
+// PHOTO
+function openPhotoModal(q){
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">${q.icon} ${q.name}</div>
+    <div class="modal-sub">Prends une photo comme preuve !</div>
+    <div class="photo-area" onclick="document.getElementById('photo-input').click()">
+      <div style="font-size:28px;margin-bottom:6px;">📸</div>
+      <div style="font-size:12px;color:#4a6a9a;">Clique pour prendre une photo</div>
+      <img id="photo-preview" style="display:none;max-width:100%;border-radius:8px;margin-top:8px;">
+    </div>
+    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="previewPhoto(event,${q.id})">
+    <button class="btn btn-blue btn-full" id="photo-validate" style="display:none;margin-top:8px;" onclick="completeQuest(${q.id})">✓ Valider</button>
+  `);
+}
+function previewPhoto(e,id){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=document.getElementById('photo-preview');if(img){img.src=ev.target.result;img.style.display='block';}
+    const btn=document.getElementById('photo-validate');if(btn)btn.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// LECTURE — validation par photo
 function openLectureModal(q){
   openModal(`
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -85,46 +772,168 @@ function openLectureModal(q){
     <button class="btn btn-blue btn-full" id="book-validate" style="display:none;margin-top:8px;" onclick="completeQuest(${q.id})">✓ Valider la lecture</button>
   `);
 }
-
-function previewBookPhoto(e, id){
-  const file = e.target.files[0];
-  if(!file) return;
-
-  const title = document.getElementById('book-title').value.trim();
-  if(!title){
-    showToast('Entre le titre du livre !','error');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = document.getElementById('book-photo-preview');
-    if(img){ img.src = ev.target.result; img.style.display = 'block'; }
-    const btn = document.getElementById('book-validate');
-    if(btn) btn.style.display = 'block';
+function previewBookPhoto(e,id){
+  const file=e.target.files[0];if(!file)return;
+  const title=document.getElementById('book-title').value.trim();
+  if(!title){showToast('Entre le titre du livre !','error');return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=document.getElementById('book-photo-preview');if(img){img.src=ev.target.result;img.style.display='block';}
+    const btn=document.getElementById('book-validate');if(btn)btn.style.display='block';
   };
   reader.readAsDataURL(file);
 }
 
-// ... le reste de ton script (renderQuests, attemptBoss, completeQuest, etc.) reste inchangé ...
+// BOUTIQUE
+function filterShop(cat){
+  shopFilter=cat;
+  document.querySelectorAll('[id^="filter-"]').forEach(b=>b.className='btn btn-gray');
+  document.getElementById('filter-'+cat).className='btn btn-blue';
+  renderShop();
+}
+function renderShop(){
+  document.getElementById('shop-balance').textContent=`${state.xp-state.xpSpent} XP`;
+  const items=shopFilter==='all'?SHOP_ITEMS:SHOP_ITEMS.filter(i=>i.cat===shopFilter);
+  document.getElementById('shop-list').innerHTML=items.map(item=>{
+    const owned=state.ownedItems.includes(item.id);
+    const canBuy=!owned&&(state.xp-state.xpSpent)>=item.price;
+    const isEquipped=state.activeDeco===item.id||(item.type==='avatar'&&state.activeAvatar===item.value);
+    return`<div class="shop-item${owned?' owned':''}">
+      <div style="font-size:26px;">${item.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">${item.name}</div>
+        <div style="font-size:11px;color:#4a6a9a;margin-top:2px;">${item.desc}</div>
+        <div style="font-size:12px;font-weight:700;margin-top:4px;color:${owned?'#22c55e':'#4A90D9'};">${owned?'✓ Possédé':`${item.price} XP`}</div>
+      </div>
+      ${owned
+        ?`<button class="btn ${isEquipped?'btn-gray':'btn-green'}" onclick="equipItem('${item.id}')">${isEquipped?'Équipé':'Équiper'}</button>`
+        :`<button class="btn btn-blue" ${canBuy?'':'disabled style="opacity:0.4;"'} onclick="buyItem('${item.id}')">Acheter</button>`
+      }
+    </div>`;
+  }).join('');
+}
+function buyItem(id){
+  const item=SHOP_ITEMS.find(i=>i.id===id);
+  if((state.xp-state.xpSpent)<item.price){showToast('Pas assez de XP !','error');return;}
+  state.xpSpent+=item.price;state.ownedItems.push(id);state.shopPurchases=(state.shopPurchases||0)+1;
+  equipItem(id);saveState();checkBadges();renderShop();showToast(`✓ ${item.name} acheté !`,'success');
+}
+function equipItem(id){
+  const item=SHOP_ITEMS.find(i=>i.id===id);
+  if(!state.ownedItems.includes(id))return;
+  if(item.type==='deco'){state.activeDeco=id;}
+  if(item.type==='avatar'){state.activeAvatar=item.value;state.avatarData='';}
+  if(item.type==='boost'){state.boostRemaining=5;showToast('⚡ XP Boost x1.5 activé !','success');}
+  if(item.type==='boost2'){state.boost2Remaining=3;showToast('⚡⚡ XP Boost x2 activé !','success');}
+  saveState();applyAvatar();renderShop();
+}
 
-// sbFetch, upsertScore, showLeaderboard, etc. inchangés
+// BADGES
+function renderBadges(){
+  document.getElementById('badges-grid').innerHTML=BADGES.map(b=>{
+    const unlocked=state[`badge_${b.id}`];
+    return`<div class="badge-item${unlocked?' unlocked':' locked'}">
+      <div class="badge-emoji">${b.emoji}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+    </div>`;
+  }).join('');
+}
 
-function openModal(html){ /* inchangé */ }
-function closeModal(){ /* inchangé */ }
-setTimeout(() => {
-  const modal = document.getElementById('modal');
-  if (modal) {
-    modal.addEventListener('click', function(e){ 
-      if(e.target===this) closeModal(); 
-    });
-  }
-}, 100);
+// STATS
+function renderStats(){
+  const role=getRole(state.level);
+  document.getElementById('stats-xp').textContent=state.xp;
+  document.getElementById('stats-defis').textContent=state.defisCount;
+  document.getElementById('stats-level').textContent=state.level;
+  document.getElementById('stats-role').textContent=role.name;
+  document.getElementById('stats-streaks').textContent=state.streaks+' 🔥';
+  document.getElementById('stats-boss').textContent=(state.bossKills||0)+' 👹';
+  document.getElementById('stats-badges').textContent=BADGES.filter(b=>state[`badge_${b.id}`]).length+' 🏅';
+  document.getElementById('stats-spent').textContent=state.xpSpent||0;
+}
 
-function showScreen(name){ /* inchangé */ }
-function showToast(msg,type=''){ /* inchangé */ }
-function renderAll(){ renderQuests(); updateProfil(); }
+// PROFIL
+function updateProfil(){
+  const xpInLevel=state.xp-((state.level-1)*100);
+  const role=getRole(state.level);
+  const autoTitle=getLevelTitle(state.level);
+  if(autoTitle)state.activeTitle=autoTitle;
+  document.getElementById('profil-pseudo').textContent=state.pseudo||"Grinder";
+  document.getElementById('profil-rang').textContent=getRang(state.level);
+  document.getElementById('profil-xp').textContent=state.xp;
+  document.getElementById('profil-level').textContent=state.level;
+  document.getElementById('profil-streaks').textContent=state.streaks;
+  document.getElementById('profil-title').textContent=state.activeTitle||'';
+  document.getElementById('profil-bio').textContent=state.bio||'Aucune bio...';
+  // Rôle badge
+  const roleBadge=document.getElementById('profil-role-badge');
+  roleBadge.style.display='inline-block';
+  roleBadge.style.background=role.bg;roleBadge.style.color=role.color;roleBadge.style.border=`1px solid ${role.border}`;
+  roleBadge.textContent=role.name;
+  document.getElementById('xp-bar').style.width=Math.min((xpInLevel/100)*100,100)+'%';
+  document.getElementById('xp-bar-val').textContent=`${xpInLevel} / 100 XP`;
+  applyBanner();applyAvatar();renderBadges();
+}
 
+// CLASSEMENT
+async function sbFetch(path,options={}){
+  const res=await fetch(SUPABASE_URL+path,{...options,headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal',...options.headers}});
+  if(!options.method||options.method==='GET')return res.json();return res;
+}
+async function upsertScore(){
+  if(!state.pseudo)return;
+  await sbFetch('/rest/v1/leaderboard',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({pseudo:state.pseudo,xp:state.xp,level:state.level})});
+}
+async function showLeaderboard(mode='xp'){
+  leaderboardMode=mode;
+  document.getElementById('classement-list').innerHTML=`<div style="text-align:center;color:#4a6a9a;padding:40px;">Chargement... ⏳</div>`;
+  try{
+    const players=await sbFetch(`/rest/v1/leaderboard?select=*&order=${mode}.desc&limit=50`);
+    if(!Array.isArray(players)||!players.length){document.getElementById('classement-list').innerHTML=`<div style="text-align:center;color:#4a6a9a;padding:40px;">Sois le premier ! 🚀</div>`;return;}
+    document.getElementById('classement-list').innerHTML=
+      `<div class="section-title" style="margin-bottom:10px;">Top joueurs 🌍</div>`+
+      players.map((p,i)=>{
+        const pos=i+1,medal=pos===1?'🥇':pos===2?'🥈':pos===3?'🥉':pos;
+        const isYou=p.pseudo===state.pseudo;
+        const role=getRole(p.level);
+        return`<div class="rank-card${isYou?' rank-you':''}">
+          <div style="font-size:18px;font-weight:700;width:28px;text-align:center;flex-shrink:0;">${medal}</div>
+          <div style="width:36px;height:36px;border-radius:50%;background:#112240;border:2px solid ${role.border};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👤</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;">${p.pseudo}${isYou?'<span style="font-size:10px;color:#4A90D9;margin-left:4px;">(Toi)</span>':''}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+              <span style="font-size:10px;color:#4A90D9;">${p.xp} XP · Niv.${p.level}</span>
+              <span style="font-size:9px;background:${role.bg};color:${role.color};border-radius:4px;padding:1px 6px;">${role.name}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+  }catch(e){document.getElementById('classement-list').innerHTML=`<div style="text-align:center;color:#ef4444;padding:40px;">Erreur de connexion 😕</div>`;}
+}
+
+function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal').classList.add('open');}
+function closeModal(){clearInterval(timerInterval);timerRunning=false;document.getElementById('modal').classList.remove('open');}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if(name==='profil')updateProfil();
+  if(name==='stats')renderStats();
+  if(name==='boutique')renderShop();
+  if(name==='classement')showLeaderboard(leaderboardMode);
+}
+
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show'+(type?' '+type:'');
+  setTimeout(()=>t.className='toast',3000);
+}
+
+function renderAll(){renderQuests();updateProfil();}
 renderAll();
 startDailyTimer();
 </script>
