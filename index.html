@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a1628">
+<title>Grindly</title>
+<style>
+/* ... ton CSS complet inchangé ... */
+</style>
+</head>
+<body>
+<!-- ... tout ton HTML inchangé jusqu'au script ... -->
+
+<script>
+const SUPABASE_URL="https://zyhmtepzjhnohnetujht.supabase.co";
+const SUPABASE_KEY="sb_publishable_q0rpFX-bjrzPafzU7ltpWw_G1cZF_U2";
+
+// ... toutes tes constantes (ALL_QUESTS, BOSSES, etc.) inchangées ...
+
+function loadState(){ /* inchangé */ }
+function saveState(){ /* inchangé */ }
+let state=loadState();
+// ... tes variables globales inchangées ...
+
+// Reset quêtes (inchangé)
+
+// === MODIFICATIONS ICI ===
+
+// Vérification pseudo unique + feedback
+async function savePseudo(){
+  const p = document.getElementById('pseudo-input').value.trim();
+  if(!p){ showToast('Entre un pseudo !','error'); return; }
+  if(p.length < 3){ showToast('Pseudo trop court (min 3)','error'); return; }
+
+  try {
+    const existing = await sbFetch(`/rest/v1/leaderboard?pseudo=eq.${encodeURIComponent(p)}&select=pseudo`);
+    if(Array.isArray(existing) && existing.length > 0){
+      showToast('Ce pseudo est déjà pris !','error');
+      return;
+    }
+  } catch(e){
+    showToast('Erreur de vérification','error');
+    return;
+  }
+
+  state.pseudo = p;
+  state.pseudoLocked = true;
+  saveState();
+  document.getElementById('setup-screen').style.display = 'none';
+  upsertScore();
+  renderAll();
+  startDailyTimer();
+  showToast('Bienvenue sur Grindly !','success');
+}
+
+// Recherche joueur (inchangée)
+
+// Rang optimisé (limite à 1000 résultats max)
+async function getPlayerRank(pseudo){
+  try{
+    const all = await sbFetch(`/rest/v1/leaderboard?select=pseudo&order=xp.desc&limit=1000`);
+    if(!Array.isArray(all)) return '?';
+    const idx = all.findIndex(p => p.pseudo === pseudo);
+    return idx >= 0 ? idx + 1 : '?';
+  }catch{return '?';}
+}
+
+// Lecture modal amélioré (vérification photo + titre)
+function openLectureModal(q){
+  openModal(`
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">📖 ${q.name}</div>
+    <div class="modal-sub">Prends une photo de ton livre comme preuve !</div>
+    <label style="font-size:11px;color:#4a6a9a;display:block;margin-bottom:5px;">Titre du livre</label>
+    <input class="input-field" id="book-title" placeholder="Ex: Harry Potter tome 1">
+    <label style="font-size:11px;color:#4a6a9a;display:block;margin-bottom:5px;">Pages lues</label>
+    <input class="input-field" id="book-pages" placeholder="Ex: pages 45 à 78">
+    <div class="photo-area" onclick="document.getElementById('book-photo-input').click()">
+      <div style="font-size:28px;margin-bottom:6px;">📸</div>
+      <div style="font-size:12px;color:#4a6a9a;">Photo du livre (obligatoire)</div>
+      <img id="book-photo-preview" style="display:none;max-width:100%;border-radius:8px;margin-top:8px;">
+    </div>
+    <input type="file" id="book-photo-input" accept="image/*" capture="environment" style="display:none;" onchange="previewBookPhoto(event,${q.id})">
+    <button class="btn btn-blue btn-full" id="book-validate" style="display:none;margin-top:8px;" onclick="completeQuest(${q.id})">✓ Valider la lecture</button>
+  `);
+}
+
+function previewBookPhoto(e, id){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const title = document.getElementById('book-title').value.trim();
+  if(!title){
+    showToast('Entre le titre du livre !','error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('book-photo-preview');
+    if(img){ img.src = ev.target.result; img.style.display = 'block'; }
+    const btn = document.getElementById('book-validate');
+    if(btn) btn.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ... le reste de ton script (renderQuests, attemptBoss, completeQuest, etc.) reste inchangé ...
+
+// sbFetch, upsertScore, showLeaderboard, etc. inchangés
+
+function openModal(html){ /* inchangé */ }
+function closeModal(){ /* inchangé */ }
+document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+function showScreen(name){ /* inchangé */ }
+function showToast(msg,type=''){ /* inchangé */ }
+function renderAll(){ renderQuests(); updateProfil(); }
+
+renderAll();
+startDailyTimer();
+</script>
+</body>
+</html>
